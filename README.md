@@ -4,5 +4,5 @@ You can upload any pdf, word or excel file for the chatbot to use as context, it
 
 10/05/2024:
   All RAG functionality available.
-  Need to implement a working cost page
-  Need to implement Griq API
+  Need to implement a working cost page.
+  Need to implement Groq API.
