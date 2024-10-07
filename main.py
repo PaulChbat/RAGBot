@@ -1,8 +1,8 @@
+# This file handles app config and page navigation 
 import streamlit as st
 from chatbot import bot_page
 from file_loader import file_page
 from cost import cost_page
-
 # Set up the Streamlit page
 st.set_page_config(page_title="RAGBot", layout="wide")
 

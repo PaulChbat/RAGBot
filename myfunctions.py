@@ -79,7 +79,6 @@ def save_load_files(uploaded_files):
     
     return documents
 
-
 # Functions for chatbot_page
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -91,6 +90,7 @@ import os
 from groq import Groq
 from langchain_community.callbacks.manager import get_openai_callback
 from langchain.chains import RetrievalQA
+from gtts import gTTS
 
 class GroqLLMConfig(BaseModel):
     model_name: str = Field(..., description="The name of the Groq model to use.")
@@ -181,7 +181,7 @@ def get_answer(vectorstore, query):
     for doc in source_documents:
         source_info = f"- {doc.metadata['source']}"
         if 'page' in doc.metadata: # Only pdfs have pages.
-            source_info += f", Page {doc.metadata['page']}"
+            source_info += f", Page {doc.metadata['page']}."
 
         # Add the source info to the set if it's not already present
         if source_info not in unique_sources:
@@ -193,9 +193,15 @@ def get_answer(vectorstore, query):
         for source in unique_sources:
             response += f"{source}\n"
 
-
     response += (
         f"\nTokens used: {cb.total_tokens}\n"
         f"Cost: ${cb.total_cost:.5f}"
     )
-    return response
+    return response, cb.total_cost
+
+def text_to_speech(text, filename):
+    """Convert the text to speech and save it as an MP3 file."""
+    tts = gTTS(text)
+    tts.save(filename)
+
+
