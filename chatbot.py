@@ -37,5 +37,5 @@ def bot_page():
     
     # Add a button to play the response audio
     if os.path.exists("Audio/response.mp3") and st.session_state.messages:
-        if st.button("Play Response"):
-            st.audio("Audio/response.mp3")
+        st.audio("Audio/response.mp3")  
+        

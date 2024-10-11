@@ -3,7 +3,7 @@ import streamlit as st
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
-from myfunctions import setup_vdb, show_content, show_chunks, save_load_files
+from myfunctions import setup_vdb, show_content, show_chunks, save_load_files, show_files_in_database
 
 def file_page():
     st.title("Load your File")
@@ -16,12 +16,11 @@ def file_page():
         # Display the content of all the files
         show_content(documents)
         # Chunk the content
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=0)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=0)
         texts = text_splitter.split_documents(documents)
         # Display the generated chunks
         show_chunks(texts)
         # Setup and save vectore DataBase
-        
         setup_vdb(used_model_name,texts)
 
     st.write("---")
@@ -34,19 +33,7 @@ def file_page():
 
             # Show metadata (source filenames and page numbers) for the documents in the vectorstore
             if 'vectorstore' in st.session_state:
-                st.subheader("Files in the DataBase")
-                with st.expander("Click to expand"):
-                    # Collect all unique source filenames
-                    sources = set()
-                    for doc in vectorstore.docstore._dict.values():
-                        metadata = doc.metadata
-                        source = metadata.get("source", "Unknown")
-                        sources.add(source)  # Add to the set to avoid duplicates
-
-                    # Display the unique filenames
-                    for source in sources:
-                        st.write(source)
-
+                show_files_in_database(st.session_state['vectorstore'])
 
         except FileNotFoundError:
             st.error("No saved vectorstore found! Please upload your files first.")

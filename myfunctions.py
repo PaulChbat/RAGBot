@@ -79,6 +79,19 @@ def save_load_files(uploaded_files):
     
     return documents
 
+def show_files_in_database(vectorstore):
+    st.subheader("Files in the DataBase")
+    with st.expander("Click to expand"):
+        # Collect all unique source filenames
+        sources = set()
+        for doc in vectorstore.docstore._dict.values():
+            metadata = doc.metadata
+            source = metadata.get("source", "Unknown")
+            sources.add(source)  # Add to the set to avoid duplicates
+        # Display the unique filenames
+        for source in sources:
+            st.write(source)
+
 # Functions for chatbot_page
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
