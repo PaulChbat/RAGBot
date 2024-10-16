@@ -104,6 +104,8 @@ from groq import Groq
 from langchain_community.callbacks.manager import get_openai_callback
 from langchain.chains import RetrievalQA
 from gtts import gTTS
+import pyaudio
+import wave
 
 class GroqLLMConfig(BaseModel):
     model_name: str = Field(..., description="The name of the Groq model to use.")
@@ -206,15 +208,80 @@ def get_answer(vectorstore, query):
         for source in unique_sources:
             response += f"{source}\n"
 
-    response += (
-        f"\nTokens used: {cb.total_tokens}\n"
-        f"Cost: ${cb.total_cost:.5f}"
-    )
-    return response, cb.total_cost
+    return response 
 
 def text_to_speech(text, filename):
     """Convert the text to speech and save it as an MP3 file."""
     tts = gTTS(text)
     tts.save(filename)
+
+
+def transcribe_audio(audio_file):
+    client = Groq()
+    with open(audio_file, "rb") as file:
+        # Create a transcription of the audio file
+        transcription = client.audio.transcriptions.create(
+          file=(audio_file, file.read()), # Required audio file
+          model="whisper-large-v3-turbo", # Required model to use for transcription
+          prompt="Specify context or spelling",  # Optional
+          response_format="json",  # Optional
+          language="en",  # Optional
+          temperature=0.0  # Optional
+        )
+        return transcription.text
+
+# Audio recording settings
+FORMAT = pyaudio.paInt16  # Audio format
+CHANNELS = 1  # Mono channel
+RATE = 44100  # Sample rate
+CHUNK = 1024  # Chunk size
+OUTPUT_FILE = "Audio/question.wav"  # Output file
+
+# Initialize PyAudio
+p = pyaudio.PyAudio()
+
+# Start recording function
+def start_recording():
+    st.session_state['recording'] = True
+    st.session_state['frames'] = []
+
+    stream = p.open(format=FORMAT, channels=CHANNELS,
+                    rate=RATE, input=True,
+                    frames_per_buffer=CHUNK)
+
+    #with st.spinner("Recording audio..."):
+    while st.session_state['recording']:
+        data = stream.read(CHUNK)
+        st.session_state['frames'].append(data)
+
+    # Stop and close the stream
+    stream.stop_stream()
+    stream.close()
+    
+
+# Stop recording function
+def stop_recording():
+    st.session_state['recording'] = False
+    
+    # Save the recorded data as a WAV file
+    wf = wave.open(OUTPUT_FILE, 'wb')
+    wf.setnchannels(CHANNELS)
+    wf.setsampwidth(p.get_sample_size(FORMAT))
+    wf.setframerate(RATE)
+    wf.writeframes(b''.join(st.session_state['frames']))
+    wf.close()
+
+def get_audio_query():
+    if os.path.exists("Audio/question.wav"):
+        audio_query = transcribe_audio("Audio/question.wav")
+        os.remove("Audio/question.wav")
+        return audio_query
+    else:
+        return None
+
+
+
+    
+
 
 
