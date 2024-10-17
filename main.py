@@ -1,33 +1,46 @@
-# This file handles app config and page navigation 
 import streamlit as st
 from chatbot import bot_page
 from file_loader import file_page
-#from cost import cost_page
+
 # Set up the Streamlit page
 st.set_page_config(page_title="RAGBot", layout="wide")
 
 # Sidebar navigation
-# Default to the Chatbot page
 if 'page' not in st.session_state:
     st.session_state['page'] = "Chatbot"
-    
-# Initialize session state for recording
-if 'recording' not in st.session_state:
-    st.session_state['recording'] = False
-    st.session_state['frames'] = []  # To store audio frames
 
+# Initialize chat sessions
+if 'chat_sessions' not in st.session_state:
+    st.session_state['chat_sessions'] = []  # List of all chat sessions
+if 'current_chat' not in st.session_state:
+    st.session_state['current_chat'] = None  # Track current active chat
+
+# Sidebar to manage chat sessions
 with st.sidebar:
     st.title("Navigation")
-    if st.button("Chatbot"):
-        st.session_state['page'] = "Chatbot"
+    
+    if st.button("New Chat", help="Create a new chat session"):
+        # Create a new chat session
+        new_chat_id = len(st.session_state['chat_sessions']) + 1
+        st.session_state['chat_sessions'].append(f"Chat {new_chat_id}")
+        st.session_state['current_chat'] = f"Chat {new_chat_id}"
+        st.session_state['page'] = "Chatbot"  # Ensure the page switches to the chatbot
+    
+    st.write("## Select Chat")
+    
+    # Display buttons for each chat session
+    for chat in st.session_state['chat_sessions']:
+        if st.button(chat):
+            st.session_state['current_chat'] = chat
+            st.session_state['page'] = "Chatbot"  # Switch to chatbot page when a chat is selected
+            
+    st.write("---")
+    
+    # Additional navigation for file loading
     if st.button("Load File", help="Upload your own files"):
         st.session_state['page'] = "Load File"
-    st.write("---")
-    if st.session_state['page'] == "Chatbot":
-        if st.button("New Chat", help="Start a new conversation"):
-           st.session_state.messages = []
-
-# Navigation based on page selection
+        
+# Navigation based on selected page
 if st.session_state['page'] == "Chatbot":
     bot_page()
 elif st.session_state['page'] == "Load File":

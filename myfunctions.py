@@ -106,6 +106,7 @@ from langchain.chains import RetrievalQA
 from gtts import gTTS
 import pyaudio
 import wave
+import requests
 
 class GroqLLMConfig(BaseModel):
     model_name: str = Field(..., description="The name of the Groq model to use.")
@@ -156,7 +157,7 @@ class GroqLLM(LLM):
 # Create a Groq LLM instance
 llm = GroqLLM(
     model_name="llama3-8b-8192",  # "llama-3.1-70b-versatile"
-    temperature=0,
+    temperature=0.1,
     groq_api_key=os.getenv("GROQ_API_KEY")
 )
 # Define a custom prompt template
@@ -182,9 +183,30 @@ def setup_qa(vectorstore):
     return qa
 
 def get_answer(vectorstore, query):
-    qa = setup_qa(vectorstore) 
+    # Retrieve the current chat history
+    chat_history = st.session_state[st.session_state['current_chat']]
+
+    # Format the chat history as a string to pass to the model
+    history_str = ""
+    for message in chat_history:
+        if message["role"] == "user":
+            history_str += f"User: {message['content']}\n"
+        else:
+            history_str += f"Assistant: {message['content']}\n"
+
+    # Append the new user query to the history
+    history_str += f"User: {query}\n"
+
+    # Create the prompt by combining history with the current query
+    full_prompt = f"{history_str}Assistant:"
+
+    # Set up the QA chain
+    qa = setup_qa(vectorstore)
+    
+    # Fetch the result with the entire conversation context
     with get_openai_callback() as cb:
-        result = qa({"query": query}) # fetch result
+        result = qa({"query": full_prompt})  # Using the history as part of the query
+
     answer = result['result']
     source_documents = result['source_documents']
     
@@ -195,20 +217,21 @@ def get_answer(vectorstore, query):
 
     for doc in source_documents:
         source_info = f"- {doc.metadata['source']}"
-        if 'page' in doc.metadata: # Only pdfs have pages.
+        if 'page' in doc.metadata:  # Only pdfs have pages.
             source_info += f", Page {doc.metadata['page']}."
 
         # Add the source info to the set if it's not already present
         if source_info not in unique_sources:
             unique_sources.add(source_info)
 
-    # Now, add the unique sources to the response string, if no relevant answer is found no need for sources
+    # Now, add the unique sources to the response string
     if "I don't know" not in answer: 
         response += "Sources:\n"
         for source in unique_sources:
             response += f"{source}\n"
 
-    return response 
+    return response
+
 
 def text_to_speech(text, filename):
     """Convert the text to speech and save it as an MP3 file."""
