@@ -4,9 +4,12 @@ from pathlib import Path
 from myfunctions import get_answer, text_to_speech, start_recording, stop_recording, get_audio_query
 
 def bot_page():
-    st.title("RAGBot")
+    if st.session_state['current_chat']:
+        st.title(f"RAGBot - {st.session_state['current_chat']}")
+    else:
+        st.title("RAGBot")
 
-    # Ensure current chat is selected
+    # Ensure a chat ais selected, if not prompt the user to start a new one
     if st.session_state['current_chat'] is None:
         st.write("No chat selected. Please select or create a new chat session from the sidebar.")
         return
@@ -15,24 +18,17 @@ def bot_page():
     if st.session_state['current_chat'] not in st.session_state:
         st.session_state[st.session_state['current_chat']] = []
 
-    # Create folder for the current chat session
+    # Create folder for the current chat session to save latest response audio
     current_chat_folder = f"Audio/{st.session_state['current_chat']}"
     Path(current_chat_folder).mkdir(parents=True, exist_ok=True)
-
-    # Display recording buttons in the sidebar
-    with st.sidebar:
-        st.write("Record your question:")
-        col1, col2 = st.columns([0.5, 0.5])
-        col1.button('▶', on_click=start_recording, help="Start Recording")
-        col2.button('🔴', on_click=stop_recording, help="Stop Recording")
-
+        
     # Get audio query if available
     audio_query = get_audio_query()
     
     # Text input for user query
     text_query = st.chat_input("Your Message...")
-
-    query = text_query if text_query else audio_query
+    
+    query = text_query if text_query else audio_query 
 
     if query:
         st.session_state[st.session_state['current_chat']].append({"role": "user", "content": query})

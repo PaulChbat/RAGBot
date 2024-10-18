@@ -103,10 +103,10 @@ import os
 from groq import Groq
 from langchain_community.callbacks.manager import get_openai_callback
 from langchain.chains import RetrievalQA
-from gtts import gTTS
 import pyaudio
 import wave
-import requests
+from deepgram import (DeepgramClient, SpeakOptions)
+
 
 class GroqLLMConfig(BaseModel):
     model_name: str = Field(..., description="The name of the Groq model to use.")
@@ -204,7 +204,7 @@ def get_answer(vectorstore, query):
     qa = setup_qa(vectorstore)
     
     # Fetch the result with the entire conversation context
-    with get_openai_callback() as cb:
+    with get_openai_callback() :
         result = qa({"query": full_prompt})  # Using the history as part of the query
 
     answer = result['result']
@@ -232,12 +232,10 @@ def get_answer(vectorstore, query):
 
     return response
 
-
-def text_to_speech(text, filename):
-    """Convert the text to speech and save it as an MP3 file."""
-    tts = gTTS(text)
-    tts.save(filename)
-
+def text_to_speech(text, audio_path):
+    deepgram = DeepgramClient(os.environ.get("DEEPGRAM_API_KEY"))
+    options = SpeakOptions(model='aura-helios-en')
+    deepgram.speak.v("1").save(audio_path, {"text":text}, options)
 
 def transcribe_audio(audio_file):
     client = Groq()
@@ -301,6 +299,7 @@ def get_audio_query():
         return audio_query
     else:
         return None
+
 
 
 

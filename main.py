@@ -1,11 +1,11 @@
 import streamlit as st
 from chatbot import bot_page
 from file_loader import file_page
-
+from myfunctions import start_recording, stop_recording
 # Set up the Streamlit page
 st.set_page_config(page_title="RAGBot", layout="wide")
 
-# Sidebar navigation
+# Default Page
 if 'page' not in st.session_state:
     st.session_state['page'] = "Chatbot"
 
@@ -15,7 +15,7 @@ if 'chat_sessions' not in st.session_state:
 if 'current_chat' not in st.session_state:
     st.session_state['current_chat'] = None  # Track current active chat
 
-# Sidebar to manage chat sessions
+# Sidebar 
 with st.sidebar:
     st.title("Navigation")
     
@@ -24,11 +24,24 @@ with st.sidebar:
         new_chat_id = len(st.session_state['chat_sessions']) + 1
         st.session_state['chat_sessions'].append(f"Chat {new_chat_id}")
         st.session_state['current_chat'] = f"Chat {new_chat_id}"
-        st.session_state['page'] = "Chatbot"  # Ensure the page switches to the chatbot
+        st.session_state['page'] = "Chatbot"  # Ensure the page switches to the new chat
     
-    st.write("## Select Chat")
+    # Navigation for file loading
+    if st.button("Load File", help="Upload your own files"):
+        st.session_state['page'] = "Load File"
+
+    st.write("---")
+
+    # Audio Input section
+    st.write("## Record your question:")
+    col1, col2 = st.columns([0.5, 0.5])
+    col1.button('▶', on_click=start_recording, help="Start Recording")
+    col2.button('🔴', on_click=stop_recording, help="Stop Recording")
+
+    st.write("---")
     
     # Display buttons for each chat session
+    st.write("## Select Chat")
     for chat in st.session_state['chat_sessions']:
         if st.button(chat):
             st.session_state['current_chat'] = chat
@@ -36,9 +49,7 @@ with st.sidebar:
             
     st.write("---")
     
-    # Additional navigation for file loading
-    if st.button("Load File", help="Upload your own files"):
-        st.session_state['page'] = "Load File"
+
         
 # Navigation based on selected page
 if st.session_state['page'] == "Chatbot":
