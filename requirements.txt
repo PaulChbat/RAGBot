@@ -73,7 +73,7 @@ multidict==6.1.0
 mypy-extensions==1.0.0
 narwhals==1.6.2
 networkx==3.3
-numpy @ file:///D:/bld/numpy_1707225570061/work/dist/numpy-1.26.4-cp310-cp310-win_amd64.whl#sha256=6761da75b1528684e6bf4dabdbdded9d1eb4d0e9b299482c7ce152cfb3155106
+numpy==1.26.4
 openpyxl==3.1.5
 orjson==3.10.7
 packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1718189413536/work
