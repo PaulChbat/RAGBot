@@ -76,7 +76,7 @@ networkx==3.3
 numpy==1.26.4
 openpyxl==3.1.5
 orjson==3.10.7
-packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1718189413536/work
+packaging==24.1
 pandas==2.2.2
 parsel==1.9.1
 pdfminer.six==20231228
