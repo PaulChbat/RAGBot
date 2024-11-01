@@ -157,7 +157,7 @@ class GroqLLM(LLM):
 # Create a Groq LLM instance
 llm = GroqLLM(
     model_name="llama3-8b-8192",  # "llama-3.1-70b-versatile"
-    temperature=0.1,
+    temperature=0.3,
     groq_api_key=os.getenv("GROQ_API_KEY")
 )
 # Define a custom prompt template
@@ -182,7 +182,7 @@ def setup_qa(vectorstore):
     )
     return qa
 
-def get_answer(vectorstore, query):
+def get_answer(vectorstore):
     # Retrieve the current chat history
     chat_history = st.session_state[st.session_state['current_chat']]
 
@@ -193,9 +193,6 @@ def get_answer(vectorstore, query):
             history_str += f"User: {message['content']}\n"
         else:
             history_str += f"Assistant: {message['content']}\n"
-
-    # Append the new user query to the history
-    history_str += f"User: {query}\n"
 
     # Create the prompt by combining history with the current query
     full_prompt = f"{history_str}Assistant:"
@@ -233,9 +230,10 @@ def get_answer(vectorstore, query):
     return response
 
 def text_to_speech(text, audio_path):
+    sourceless_text = text.split("Sources")[0].strip() #remove sources from TTS 
     deepgram = DeepgramClient(os.environ.get("DEEPGRAM_API_KEY"))
-    options = SpeakOptions(model='aura-helios-en')
-    deepgram.speak.v("1").save(audio_path, {"text":text}, options)
+    options = SpeakOptions(model='aura-asteria-en')
+    deepgram.speak.v("1").save(audio_path, {"text":sourceless_text}, options)
 
 def transcribe_audio(audio_file):
     client = Groq()
@@ -244,18 +242,18 @@ def transcribe_audio(audio_file):
         transcription = client.audio.transcriptions.create(
           file=(audio_file, file.read()), # Required audio file
           model="whisper-large-v3-turbo", # Required model to use for transcription
-          prompt="Specify context or spelling",  # Optional
-          response_format="json",  # Optional
-          language="en",  # Optional
-          temperature=0.0  # Optional
+          prompt="Specify context or spelling",  # Change it to adapt to the context of the app
+          response_format="json",  
+          #language="en",  # Omitt to let Groq guess the language or you can specify one. 
+          temperature=0.0  # The lower the temperature the more accurate the transcription is
         )
         return transcription.text
 
 # Audio recording settings
-FORMAT = pyaudio.paInt16  # Audio format
-CHANNELS = 1  # Mono channel
-RATE = 44100  # Sample rate
-CHUNK = 1024  # Chunk size
+FORMAT = pyaudio.paInt16  # Sets the audio format to a 16-bit signed integer
+CHANNELS = 1  # Sets to mono channel recording, better for voice recognition
+RATE = 44100  # Sample rate in Hz
+CHUNK = 1024  # Chunk size, audio read in chunks of 1024 at a time
 OUTPUT_FILE = "Audio/question.wav"  # Output file
 
 # Initialize PyAudio
@@ -295,7 +293,7 @@ def stop_recording():
 def get_audio_query():
     if os.path.exists("Audio/question.wav"):
         audio_query = transcribe_audio("Audio/question.wav")
-        os.remove("Audio/question.wav")
+        os.remove("Audio/question.wav") # Cleanup the audio file because i will have no use.
         return audio_query
     else:
         return None

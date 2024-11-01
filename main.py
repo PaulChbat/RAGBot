@@ -31,14 +31,14 @@ with st.sidebar:
         st.session_state['page'] = "Load File"
 
     st.write("---")
-
-    # Audio Input section
-    st.write("## Record your question:")
-    col1, col2 = st.columns([0.5, 0.5])
-    col1.button('▶', on_click=start_recording, help="Start Recording")
-    col2.button('🔴', on_click=stop_recording, help="Stop Recording")
-
-    st.write("---")
+    if st.session_state['current_chat']:
+        # Audio Input section
+        st.write("## Record your question:")
+        col1, col2 = st.columns([0.5, 0.5])
+        col1.button('▶', on_click=start_recording, help="Start Recording")
+        col2.button('🔴', on_click=stop_recording, help="Stop Recording")
+        st.write("---")
+    
     
     # Display buttons for each chat session
     st.write("## Select Chat")

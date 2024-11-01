@@ -24,16 +24,65 @@ def file_page():
         setup_vdb(used_model_name,texts)
 
     st.write("---")
-    if st.button("Load Last DataBase"):
-        embeddings = HuggingFaceEmbeddings(model_name = used_model_name)
-        try:
-            vectorstore = FAISS.load_local('db_faiss', embeddings, allow_dangerous_deserialization=True)
-            st.session_state['vectorstore'] = vectorstore
-            st.success("Vectorstore loaded successfully!")
-
-            # Show metadata (source filenames and page numbers) for the documents in the vectorstore
-            if 'vectorstore' in st.session_state:
-                show_files_in_database(st.session_state['vectorstore'])
-
-        except FileNotFoundError:
-            st.error("No saved vectorstore found! Please upload your files first.")
+    option = st.selectbox(
+        "Choose a Database to load:",
+        ["Select an option...","USEK", "EXEO"]
+    )
+    if st.button("Load"):
+        if option=="USEK":
+            embeddings = HuggingFaceEmbeddings(model_name = used_model_name)
+            try:
+                vectorstore = FAISS.load_local('db_faiss_usek', embeddings, allow_dangerous_deserialization=True)
+                st.session_state['vectorstore'] = vectorstore
+                st.success("USEK DB loaded successfully!")
+    
+                # Show metadata (source filenames and page numbers) for the documents in the vectorstore
+                if 'vectorstore' in st.session_state:
+                    show_files_in_database(st.session_state['vectorstore'])
+    
+            except FileNotFoundError:
+                st.error("No saved USEK DB found!")
+        elif option=="EXEO":
+            embeddings = HuggingFaceEmbeddings(model_name = used_model_name)
+            try:
+                vectorstore = FAISS.load_local('db_faiss_exeo', embeddings, allow_dangerous_deserialization=True)
+                st.session_state['vectorstore'] = vectorstore
+                st.success("EXEO DB loaded successfully!")
+    
+                # Show metadata (source filenames and page numbers) for the documents in the vectorstore
+                if 'vectorstore' in st.session_state:
+                    show_files_in_database(st.session_state['vectorstore'])
+    
+            except FileNotFoundError:
+                st.error("No saved EXEO DB found!")
+    
+    #col1 ,col2 = st.columns(2)
+    #with col1:
+    #    if st.button("Load USEK Data"):
+    #        embeddings = HuggingFaceEmbeddings(model_name = used_model_name)
+    #        try:
+    #            vectorstore = FAISS.load_local('db_faiss_usek', embeddings, allow_dangerous_deserialization=True)
+    #            st.session_state['vectorstore'] = vectorstore
+    #            st.success("USEK DB loaded successfully!")
+#
+    #            # Show metadata (source filenames and page numbers) for the documents in the vectorstore
+    #            if 'vectorstore' in st.session_state:
+    #                show_files_in_database(st.session_state['vectorstore'])
+#
+    #        except FileNotFoundError:
+    #            st.error("No saved USEK DB found!")
+    #with col2:
+    #    if st.button("Load EXEO Data"):
+    #        embeddings = HuggingFaceEmbeddings(model_name = used_model_name)
+    #        try:
+    #            vectorstore = FAISS.load_local('db_faiss_exeo', embeddings, allow_dangerous_deserialization=True)
+    #            st.session_state['vectorstore'] = vectorstore
+    #            st.success("EXEO DB loaded successfully!")
+#
+    #            # Show metadata (source filenames and page numbers) for the documents in the vectorstore
+    #            if 'vectorstore' in st.session_state:
+    #                show_files_in_database(st.session_state['vectorstore'])
+#
+    #        except FileNotFoundError:
+    #            st.error("No saved EXEO DB found!")
+#
