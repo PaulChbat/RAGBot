@@ -106,7 +106,7 @@ from langchain.chains import RetrievalQA
 import pyaudio
 import wave
 from deepgram import (DeepgramClient, SpeakOptions)
-
+#from elevenlabs import text_to_speech, save
 
 class GroqLLMConfig(BaseModel):
     model_name: str = Field(..., description="The name of the Groq model to use.")
@@ -157,11 +157,11 @@ class GroqLLM(LLM):
 # Create a Groq LLM instance
 llm = GroqLLM(
     model_name="llama3-8b-8192",  # "llama-3.1-70b-versatile"
-    temperature=0.3,
+    temperature=0.1,
     groq_api_key=os.getenv("GROQ_API_KEY")
 )
 # Define a custom prompt template
-template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
+template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer. 
 
 {context}
 
@@ -229,7 +229,7 @@ def get_answer(vectorstore):
 
     return response
 
-def text_to_speech(text, audio_path):
+def gen_audio(text, audio_path):
     sourceless_text = text.split("Sources")[0].strip() #remove sources from TTS 
     deepgram = DeepgramClient(os.environ.get("DEEPGRAM_API_KEY"))
     options = SpeakOptions(model='aura-asteria-en')

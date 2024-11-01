@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from pathlib import Path
-from myfunctions import get_answer, text_to_speech, get_audio_query
+from myfunctions import get_answer, gen_audio, get_audio_query
 
 def bot_page():
     if st.session_state['current_chat']:
@@ -53,7 +53,7 @@ def bot_page():
 
         # Convert response to speech and save it in the current chat folder
         audio_path = os.path.join(current_chat_folder, "response.mp3")
-        text_to_speech(response, audio_path)
+        gen_audio(response, audio_path)
 
     # Display chat messages for the current session
     if st.session_state[st.session_state['current_chat']]:
@@ -66,4 +66,4 @@ def bot_page():
     # Play the bot's response audio from the current chat folder
     audio_file = os.path.join(current_chat_folder, "response.mp3")
     if os.path.exists(audio_file) and st.session_state[st.session_state['current_chat']]:
-        st.audio(audio_file, autoplay = False)
+        st.audio(audio_file, autoplay = True)
