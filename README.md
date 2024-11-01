@@ -15,5 +15,5 @@ In this example, with the use of web scraping, i ask the bot question about USEK
 - **Text-To-Speech** Use a library for TTS that allows more than 2000 characters as input.
 
 # Current Issues:
-- Any response > 2000 characters will generated an error from Deepgram (exceeding max text input), u can change chat and go back to your chat and the response will be shown without the valid audio.
+- Any response > 2000 characters will generated an error from Deepgram (exceeding max text input), u can change chat and go back to your chat and the response will be shown, but without the valid audio.
 
