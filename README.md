@@ -1,5 +1,5 @@
-# RAGBot V4
-RAGBot V4 allows you to upload your own files, including PDF, Word, and Excel documents, and interact with an intelligent chatbot to ask questions directly related to the content.
+# RAGBot
+RAGBot allows you to upload your own files, including PDF, Word, and Excel documents, and interact with an intelligent chatbot to ask questions directly related to the content.
 
 # Features
 - **Voice Recognition & Text-to-Speech:** Leverages Groq for speech recognition and Deepgram for text-to-speech capabilities, enabling seamless voice interaction.
