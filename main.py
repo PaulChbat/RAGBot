@@ -16,9 +16,19 @@ if 'current_chat' not in st.session_state:
     st.session_state['current_chat'] = None  # Track current active chat
 if 'chat_counter' not in st.session_state:
     st.session_state['chat_counter'] = 1
-
+if 'lang' not in st.session_state:
+    st.session_state['lang'] = 'en'
 # Sidebar 
 with st.sidebar:
+    st.title("Language")
+    col1, col2 = st.columns([0.5, 0.5])  # Create two columns
+    with col1:
+        if st.button("Francais"):
+            st.session_state['lang'] = 'fr'
+    with col2:
+        if st.button("English"):
+            st.session_state['lang'] = 'en'
+
     st.title("Navigation")
     
     if st.button("New Chat", help="Create a new chat session"):
@@ -44,7 +54,7 @@ with st.sidebar:
     
     
     # Display buttons for each chat session
-    st.write("## Select Chat")
+    st.write("## Chats")
     for chat in st.session_state['chat_sessions']:
         col1, col2 = st.columns([0.7, 0.3])  # Create two columns
         with col1:

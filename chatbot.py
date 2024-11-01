@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from pathlib import Path
-from myfunctions import get_answer, gen_audio, get_audio_query
+from myfunctions import get_answer, gen_audio, get_audio_query, no_chat_msg
 
 def bot_page():
     if st.session_state['current_chat']:
@@ -9,18 +9,9 @@ def bot_page():
     else:
         st.title("RAGBot")
 
-    # Ensure a chat ais selected, if not prompt the user to start a new one
+    # Ensure a chat is selected, if not prompt the user to start a new one
     if st.session_state['current_chat'] is None:
-        st.markdown(
-            """
-            ### No chat selected
-            Please select or create a new chat session from the sidebar.
-
-            ### **Tips:**
-            - Avoid changing the subject within the same chat. Instead, open a new chat for each new topic or question.
-            """
-        )
-        return
+        no_chat_msg()
 
     # Initialize chat history for the selected session
     if st.session_state['current_chat'] not in st.session_state:
@@ -34,7 +25,12 @@ def bot_page():
     audio_query = get_audio_query()
     
     # Text input for user query
-    text_query = st.chat_input("Your Message...")
+    chat_input_msg = ""
+    if st.session_state['lang']== 'en':
+        chat_input_msg = "Your Message..."
+    elif st.session_state['lang']=="fr":
+        chat_input_msg = "Votre Message..."
+    text_query = st.chat_input(chat_input_msg)
     
     query = text_query if text_query else audio_query 
 

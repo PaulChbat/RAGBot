@@ -106,7 +106,7 @@ from langchain.chains import RetrievalQA
 import pyaudio
 import wave
 from deepgram import (DeepgramClient, SpeakOptions)
-#from elevenlabs import text_to_speech, save
+from cartesia import Cartesia
 
 class GroqLLMConfig(BaseModel):
     model_name: str = Field(..., description="The name of the Groq model to use.")
@@ -230,6 +230,23 @@ def get_answer(vectorstore):
     return response
 
 def gen_audio(text, audio_path):
+    ### ~~ Cartesia ~~ ###
+    #client = Cartesia(api_key=os.environ.get("CARTESIA_API_KEY"))
+    #data = client.tts.bytes(
+    #    model_id="sonic-english",
+    #    transcript=text,
+    #    voice_id="248be419-c632-4f23-adf1-5324ed7dbf1d",  # Professional Woman Voice
+    #    # You can find the supported `output_format`s at https://docs.cartesia.ai/api-reference/tts/bytes
+    #    output_format={
+    #        "container": "mp3",
+    #        "encoding": "pcm_f32le",
+    #        "sample_rate": 44100,
+    #    },
+    #)
+    #with open(audio_path, "wb") as f:
+    #    f.write(data)
+
+    ### ~~ Deepgram ~~ ###
     sourceless_text = text.split("Sources")[0].strip() #remove sources from TTS 
     deepgram = DeepgramClient(os.environ.get("DEEPGRAM_API_KEY"))
     options = SpeakOptions(model='aura-asteria-en')
@@ -299,7 +316,29 @@ def get_audio_query():
         return None
 
 
+def no_chat_msg():
+    if st.session_state['lang']== 'en':
+        st.markdown(
+            """
+            ### No chat selected
+            Please select or create a new chat session from the sidebar.
 
+            ### **Tips:**
+            - Avoid changing the subject within the same chat. Instead, open a new chat for each new topic or question.
+            """
+        )
+        return
+    elif st.session_state['lang']=="fr":
+        st.markdown(
+            '''
+            ### Aucun chat sélectionné
+            Veuillez sélectionner ou créer une nouvelle session de chat dans la barre latérale.
+
+            ### **Conseils :**
+            - Évitez de changer de sujet dans le même chat. Ouvrez plutôt un nouveau chat pour chaque nouveau sujet ou question.
+            '''
+        )
+        return
 
     
 
