@@ -339,8 +339,59 @@ def no_chat_msg():
             '''
         )
         return
-
     
+# Create a Groq LLM instance for chat naming
+llm_chats = GroqLLM(
+    model_name="llama3-8b-8192",  # "llama-3.1-70b-versatile"
+    temperature=0.5,
+    groq_api_key=os.getenv("GROQ_API_KEY")
+)
+# Define a custom prompt template for chat naming
+template_chats = """Generate a single, easy-to-understand and short phrase with simple words that summarizes the provided text, while keeping key words, for a chat session name. Just return the phrase with no additional explanation.
+If the given text has an acronym, don't try to explain it, keep the acronym with no explanation:
+ 
+Text:{input_text}
+
+Summary:"""
+
+PROMPT_chats= PromptTemplate(
+    template=template_chats, input_variables=["input_text"]
+)
+
+def gen_chat_name(input_text: str) -> str:
+    prompt = PROMPT_chats.format(input_text=input_text)
+    
+    # Get the name from the LLM
+    with get_openai_callback():
+        summary = llm_chats(prompt)
+
+    summary = summary.replace('"', '')
+    return summary
+
+
+def update_chat_name(query):
+    """Update the current chat name based on the provided query, ensuring no name conflicts."""
+    new_chat_name = gen_chat_name(query)
+
+    # Check for existing names to avoid conflicts
+    existing_names = {chat[1] for chat in st.session_state['chat_sessions']}
+    
+    # If the new name already exists, modify it
+    if new_chat_name in existing_names:
+        # Find a unique name by appending a number
+        suffix = 1
+        while f"{new_chat_name} ({suffix})" in existing_names:
+            suffix += 1
+        new_chat_name = f"{new_chat_name} ({suffix})"
+    
+    # Update the chat session
+    for chat in st.session_state['chat_sessions']:
+        if chat[0] == st.session_state['current_chat']:
+            chat[1] = new_chat_name
+            st.session_state['current_chat_name'] = new_chat_name
+            break
+
+
 
 
 

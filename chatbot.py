@@ -1,11 +1,11 @@
 import streamlit as st
 import os
 from pathlib import Path
-from myfunctions import get_answer, gen_audio, get_audio_query, no_chat_msg
+from myfunctions import get_answer, gen_audio, get_audio_query, no_chat_msg, update_chat_name
 
 def bot_page():
     if st.session_state['current_chat']:
-        st.title(f"RAGBot - {st.session_state['current_chat']}")
+        st.title(f"RAGBot - {st.session_state['current_chat_name']}")
     else:
         st.title("RAGBot")
 
@@ -25,18 +25,22 @@ def bot_page():
     audio_query = get_audio_query()
     
     # Text input for user query
+    text_query = None
     chat_input_msg = ""
     if st.session_state['lang']== 'en':
         chat_input_msg = "Your Message..."
     elif st.session_state['lang']=="fr":
         chat_input_msg = "Votre Message..."
-    text_query = st.chat_input(chat_input_msg)
+    if st.session_state['current_chat'] is not None:
+        text_query = st.chat_input(chat_input_msg)
     
     query = text_query if text_query else audio_query 
 
     if query:
         st.session_state[st.session_state['current_chat']].append({"role": "user", "content": query})
-        
+        if len(st.session_state[st.session_state['current_chat']]) == 1:  # First query
+            update_chat_name(query)
+
         # Generate the response
         if 'vectorstore' in st.session_state:
             vectorstore = st.session_state['vectorstore']
@@ -63,3 +67,4 @@ def bot_page():
     audio_file = os.path.join(current_chat_folder, "response.mp3")
     if os.path.exists(audio_file) and st.session_state[st.session_state['current_chat']]:
         st.audio(audio_file, autoplay = True)
+    
